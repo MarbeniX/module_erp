@@ -1,0 +1,19 @@
+{
+    "compilerOptions": {
+        "outDir": "./dist",
+        "rootDir": "./src",
+        "lib": ["ESNext", "DOM"],
+        "target": "es2020",
+        "module": "Node16",
+        "strict": false,
+        "sourceMap": true,
+        "esModuleInterop": true,
+        "moduleResolution": "node16",
+        "declaration": true,
+        "experimentalDecorators": true,
+        "emitDecoratorMetadata": true,
+        "types": ["node"], // <--- AGREGA ESTO EXPLICITAMENTE
+        "typeRoots": ["./node_modules/@types"]
+    },
+    "include": ["src/**/*.ts"]
+}

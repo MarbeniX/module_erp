@@ -1,0 +1,179 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum SupplierStatus {
+  active
+  inactive
+}
+
+enum OrderStatus {
+  draft
+  sent
+  received
+  cancelled
+}
+
+enum InvoiceStatus {
+  received
+  captured
+  validated
+  rejected
+  paid
+}
+
+enum PaymentMethod {
+  transfer
+  check
+  cash
+}
+
+enum UserRole {
+  purchases
+  finance
+  director
+  admin
+}
+
+
+model Supplier {
+  id           String         @id @default(uuid())
+  legalName    String
+  contactEmail String
+  phone        String?
+  bankName     String?
+  bankAccount  String?
+  currency     String         @default("MXN")
+  status       SupplierStatus @default(active)
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  products  Product[]
+  orders    Order[]
+  invoices  Invoice[]
+}
+
+model Product {
+  id            String   @id @default(uuid())
+  supplierId    String
+  name          String
+  description   String?
+  sku           String?
+  unitOfMeasure String
+  unitPrice     Float   
+  currency      String   @default("MXN")
+  updatedAt     DateTime @updatedAt
+
+  supplier   Supplier    @relation(fields: [supplierId], references: [id])
+  orderLines OrderLine[]
+
+  @@index([supplierId])
+}
+
+model Order {
+  id               String      @id @default(uuid())
+  supplierId       String
+  userId           String
+  orderNumber      String      @unique
+  issuedAt         DateTime    @default(now())
+  expectedDelivery DateTime?
+  status           OrderStatus @default(draft)
+  subtotal         Float
+  taxes            Float
+  total            Float
+  currency         String      @default("MXN")
+  notes            String?
+  createdAt        DateTime    @default(now())
+
+  supplier  Supplier    @relation(fields: [supplierId], references: [id])
+  user      User        @relation(fields: [userId], references: [id])
+  lines     OrderLine[]
+  invoice   Invoice?
+
+  @@index([supplierId])
+  @@index([userId])
+}
+
+model OrderLine {
+  id          String  @id @default(uuid())
+  orderId     String
+  productId   String
+  quantity    Int
+  unitPrice   Float
+  subtotal    Float
+
+  order   Order   @relation(fields: [orderId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
+
+  @@index([orderId])
+  @@index([productId])
+}
+
+model Invoice {
+  id              String        @id @default(uuid())
+  supplierId      String
+  orderId         String?       @unique
+  capturedById    String
+  validatedById   String?
+  invoiceNumber   String        @unique
+  issuedAt        DateTime
+  dueDate         DateTime
+  subtotal        Float
+  taxes           Float
+  total           Float
+  currency        String        @default("MXN")
+  status          InvoiceStatus @default(received)
+  fileUrl         String?
+  rejectionReason String?
+  capturedAt      DateTime      @default(now())
+  validatedAt     DateTime?
+  createdAt       DateTime      @default(now())
+
+  supplier    Supplier @relation(fields: [supplierId], references: [id])
+  order       Order?   @relation(fields: [orderId], references: [id])
+  capturedBy  User     @relation("CapturedInvoices", fields: [capturedById], references: [id])
+  validatedBy User?    @relation("ValidatedInvoices", fields: [validatedById], references: [id])
+  payment     Payment?
+
+  @@index([supplierId])
+  @@index([status])
+  @@index([dueDate])
+}
+
+model Payment {
+  id             String        @id @default(uuid())
+  invoiceId      String        @unique
+  registeredById String
+  amount         Float
+  currency       String        @default("MXN")
+  paymentDate    DateTime
+  paymentMethod  PaymentMethod
+  bankReference  String?
+  receiptUrl     String?
+  createdAt      DateTime      @default(now())
+
+  invoice      Invoice @relation(fields: [invoiceId], references: [id])
+  registeredBy User    @relation(fields: [registeredById], references: [id])
+
+  @@index([invoiceId])
+}
+
+model User {
+  id           String   @id @default(uuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  role         UserRole
+  active       Boolean  @default(true)
+  createdAt    DateTime @default(now())
+
+  orders            Order[]
+  capturedInvoices  Invoice[] @relation("CapturedInvoices")
+  validatedInvoices Invoice[] @relation("ValidatedInvoices")
+  payments          Payment[]
+}
