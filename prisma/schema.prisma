@@ -12,7 +12,7 @@ enum SupplierStatus {
   inactive
 }
 
-enum OrderStatus {
+enum  OrderStatus {
   draft
   sent
   received

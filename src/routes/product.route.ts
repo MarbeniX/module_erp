@@ -4,7 +4,7 @@ import { authorize } from "../middlewares/authorize.middleware";
 import { ProductController } from "../controller/product.controller";
 import { validate } from "../middlewares/validate.middleware";
 import { productSchema, updateProductSchema } from "../schemas/product.schema";
-import { idSchema } from "../schemas/supplier.schema";
+import { idSchema } from "../schemas/invoice.schemas";
 
 const router = Router();
 

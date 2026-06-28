@@ -16,10 +16,5 @@ export const supplierSchema = z.object({
 
 export const updateSupplierSchema = supplierSchema.partial();
 
-export const idSchema = z.object({
-    id: z.string().uuid("Invalid UUID format"),
-});
-
 export type SupplierDto = z.infer<typeof supplierSchema>;
 export type UpdateSupplierDto = z.infer<typeof updateSupplierSchema>;
-export type IdDto = z.infer<typeof idSchema>;

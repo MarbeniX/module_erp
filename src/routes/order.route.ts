@@ -4,13 +4,13 @@ import {
     createOrderSchema,
     updateOrderSchema,
     updateOrderStatusSchema,
-    idSchema,
     getOrdersQuerySchema,
 } from "../schemas/order.schema";
 import { OrderController } from "../controller/order.controller";
 import { authorize } from "../middlewares/authorize.middleware";
 import { authenticate } from "../middlewares/authenticate.middleware";
 import { validate } from "../middlewares/validate.middleware";
+import { idSchema } from "../schemas/invoice.schemas";
 
 const router = Router();
 

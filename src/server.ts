@@ -7,6 +7,7 @@ import authRoutes from "./routes/auth.route";
 import supplierRoutes from "./routes/supplier.route";
 import productRoutes from "./routes/product.route";
 import orderRoutes from "./routes/order.route";
+import invoiceRoutes from "./routes/invoice.route";
 
 verifyMailConnection();
 connectDB();
@@ -19,5 +20,6 @@ app.use("/api/auth", authRoutes);
 app.use("/api/supplier", supplierRoutes);
 app.use("/api/product", productRoutes);
 app.use("/api/order", orderRoutes);
+app.use("/api/invoice", invoiceRoutes);
 
 export default app;

@@ -33,10 +33,6 @@ export const getOrdersQuerySchema = z.object({
     offset: z.coerce.number().int().min(0).default(0),
 });
 
-export const idSchema = z.object({
-    id: z.string().uuid("Invalid ID"),
-});
-
 export type CreateOrderInput = z.infer<typeof createOrderSchema>;
 export type UpdateOrderInput = z.infer<typeof updateOrderSchema>;
 export type UpdateOrderStatusInput = z.infer<typeof updateOrderStatusSchema>;
