@@ -44,6 +44,7 @@ enum UserRole {
 model Supplier {
   id           String         @id @default(uuid())
   legalName    String
+  taxId        String         @unique
   contactEmail String
   phone        String?
   bankName     String?
@@ -167,7 +168,7 @@ model User {
   id           String   @id @default(uuid())
   name         String
   email        String   @unique
-  passwordHash String
+  password     String
   role         UserRole
   active       Boolean  @default(true)
   createdAt    DateTime @default(now())
@@ -176,4 +177,15 @@ model User {
   capturedInvoices  Invoice[] @relation("CapturedInvoices")
   validatedInvoices Invoice[] @relation("ValidatedInvoices")
   payments          Payment[]
+  refreshTokens      RefreshToken[]
+}
+
+model RefreshToken {
+  id         String   @id @default(uuid())
+  token      String   @unique
+  userId     String
+  deviceInfo String?
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
 }
