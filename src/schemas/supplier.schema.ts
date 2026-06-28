@@ -11,6 +11,15 @@ export const supplierSchema = z.object({
         .min(18, "CLABE must be 18 digits")
         .max(18, "CLABE must be 18 digits"),
     currency: z.enum(["MXN", "USD", "EUR"], "Invalid currency"),
+    status: z.enum(["active", "inactive"], "Invalid status"),
+});
+
+export const updateSupplierSchema = supplierSchema.partial();
+
+export const idSchema = z.object({
+    id: z.string().uuid("Invalid UUID format"),
 });
 
 export type SupplierDto = z.infer<typeof supplierSchema>;
+export type UpdateSupplierDto = z.infer<typeof updateSupplierSchema>;
+export type IdDto = z.infer<typeof idSchema>;

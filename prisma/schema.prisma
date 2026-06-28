@@ -73,6 +73,7 @@ model Product {
   sku           String?
   unitOfMeasure String
   unitPrice     Float   
+  isDeleted     Boolean  @default(false)
   currency      String   @default("MXN")
   updatedAt     DateTime @updatedAt
 

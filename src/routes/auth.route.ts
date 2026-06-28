@@ -26,3 +26,5 @@ router.put(
     validate(changePasswordSchema),
     AuthController.changePassword,
 );
+
+export default router;

@@ -1,9 +1,9 @@
 import { z } from "zod";
 
 export enum UserRole {
-    PURCHASES = "purchases",
-    FINANCE = "finance",
-    DIRECTOR = "director",
+    purchases = "purchases",
+    finance = "finance",
+    director = "director",
     admin = "admin",
 }
 
