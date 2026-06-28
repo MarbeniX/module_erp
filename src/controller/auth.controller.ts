@@ -24,9 +24,7 @@ export class AuthController {
         try {
             const { userId, role } = req.user!;
             const { accessToken } = await AuthService.accessToken(userId, role);
-            res.status(201).json({
-                accessToken,
-            });
+            res.status(201).json(accessToken);
         } catch (error: any) {
             res.status(error.status || 500).json({
                 error: error.message || "Internal Server Error",
@@ -53,7 +51,6 @@ export class AuthController {
             const { refreshToken, accessToken } =
                 await AuthService.changePassword(req.body, userId, deviceInfo);
             res.status(201).json({
-                message: "Password changed successfully",
                 refreshToken,
                 accessToken,
             });
