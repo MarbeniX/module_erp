@@ -6,8 +6,6 @@ import {
     ChangeInvoiceStatusInput,
 } from "../schemas/invoice.schemas";
 
-const DIRECTOR_ALLOWED_STATUSES = ["rejected", "paid"];
-
 const LOCKED_STATUSES = ["validated", "rejected", "paid"];
 
 export class InvoiceService {
@@ -172,7 +170,7 @@ export class InvoiceService {
 
         if (existing.order && existing.order.status !== "received") {
             const error: any = new Error(
-                "The linked order is no longer in received status",
+                "The linked order is not in received status",
             );
             error.status = 400;
             throw error;
@@ -200,7 +198,12 @@ export class InvoiceService {
         id: string,
         data: ChangeInvoiceStatusInput,
     ) => {
-        const existing = await prisma.invoice.findUnique({ where: { id } });
+        const existing = await prisma.invoice.findUnique({
+            where: { id },
+            include: {
+                payment: true,
+            },
+        });
 
         if (!existing) {
             const error: any = new Error("Invoice not found");
@@ -214,6 +217,32 @@ export class InvoiceService {
             );
             error.status = 400;
             throw error;
+        }
+
+        if (data.status === "paid") {
+            const payments = await prisma.payment.findMany({
+                where: { invoiceId: id },
+            });
+
+            const totalPaid = payments.reduce((sum, p) => sum + p.amount, 0);
+            const totalPaidRounded = parseFloat(totalPaid.toFixed(2));
+            const invoiceTotal = parseFloat(existing.total.toFixed(2));
+
+            if (totalPaidRounded < invoiceTotal) {
+                const remaining = (invoiceTotal - totalPaidRounded).toFixed(2);
+                const error: any = new Error(
+                    `Invoice cannot be marked as paid. Outstanding balance: ${existing.currency} ${remaining}. Total paid: ${existing.currency} ${totalPaidRounded}, Invoice total: ${existing.currency} ${invoiceTotal}`,
+                );
+                error.status = 400;
+                error.detail = {
+                    invoiceTotal: invoiceTotal,
+                    totalPaid: totalPaidRounded,
+                    outstandingBalance: parseFloat(remaining),
+                    currency: existing.currency,
+                    paymentsCount: payments.length,
+                };
+                throw error;
+            }
         }
 
         if (
@@ -237,6 +266,7 @@ export class InvoiceService {
                 capturedBy: { select: { id: true, name: true } },
                 validatedBy: { select: { id: true, name: true } },
                 order: { select: { id: true, orderNumber: true } },
+                payment: true,
             },
         });
 
